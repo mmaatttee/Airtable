@@ -1,0 +1,34 @@
+IF((values), 
+
+LEN(
+
+IF(
+    FIND(",", ARRAYJOIN(ARRAYUNIQUE(values), ",")&"") = 1, 
+    SUBSTITUTE(ARRAYJOIN(ARRAYUNIQUE(values), ",")&"", ",", "", 1), 
+        
+    IF(
+        FIND(",", ARRAYJOIN(ARRAYUNIQUE(values), ",")&"", LEN(ARRAYJOIN(ARRAYUNIQUE(values), ",")&"") - 1), 
+        LEFT(ARRAYJOIN(ARRAYUNIQUE(values), ",")&"", LEN(ARRAYJOIN(ARRAYUNIQUE(values), ",")&"") - 1),
+        ARRAYJOIN(ARRAYUNIQUE(values), ",")&""
+    )
+            
+)
+) 
+
+- 
+
+LEN(SUBSTITUTE(
+
+IF(
+    FIND(",", ARRAYJOIN(ARRAYUNIQUE(values), ",")&"") = 1, 
+    SUBSTITUTE(ARRAYJOIN(ARRAYUNIQUE(values), ",")&"", ",", "", 1), 
+        
+    IF(
+        FIND(",", ARRAYJOIN(ARRAYUNIQUE(values), ",")&"", LEN(ARRAYJOIN(ARRAYUNIQUE(values), ",")&"") - 1), 
+        LEFT(ARRAYJOIN(ARRAYUNIQUE(values), ",")&"", LEN(ARRAYJOIN(ARRAYUNIQUE(values), ",")&"") - 1),
+        ARRAYJOIN(ARRAYUNIQUE(values), ",")&""
+    )
+            
+)
+
+, ",", "")) + 1)
