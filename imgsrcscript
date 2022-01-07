@@ -1,0 +1,8 @@
+// this script adds the common imgsrc function existing in Google Docs in Airtable. Very useful for building custom DAMs.
+const table = base.getTable('YOURTABLE');
+const query = await table.selectRecordsAsync();
+for (const record of query.records) {
+  await table.updateRecordAsync(record, {
+    Image: {url: record.getCellValue('Url')
+    });
+    }
