@@ -1,6 +1,6 @@
 function getFileMetaData(fileID) {
 
-  var api = "https://www.googleapis.com/drive/v2/files/" + fileID;
+  var api = "https://www.googleapis.com/drive/v3/files/" + fileID;
 
   var params = {
     method:"get",
