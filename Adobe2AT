@@ -1,0 +1,18 @@
+function getFileMetaData(fileID) {
+
+  var api = "https://www.googleapis.com/drive/v2/files/" + fileID;
+
+  var params = {
+    method:"get",
+    contentType: "application/json",
+    headers: {"Authorization": "Bearer " + ScriptApp.getOAuthToken()},
+    muteHttpExceptions:true,
+  };
+
+  var meta = JSON.parse(UrlFetchApp.fetch(api, params).getContentText());
+
+  Logger.log(meta.title); // File name
+  Logger.log(meta.imageMediaMetadata); // Photo EXIF data like Camera, Date taken, Focal Length, Lens, etc.
+  Logger.log(meta.imageMediaMetadata.location); // Photo Location coordinates
+  Logger.log(meta.videoMediaMetadata); // Video Size and Length.
+}
