@@ -1,0 +1,34 @@
+// This script allows for the easy copying of selected records (I use it to enable templates, especially in GANTT charts)
+
+let table = base.getTable(cursor.activeTableId)
+let query = await table.selectRecordsAsync()
+let checked = query.records.filter(record => {return record.getCellValue("Copy") === true})
+
+// Uncheck the current records
+let uncheck = checked.map(record => {return {id: record.id, fields: {"Copy": false}}})
+while (uncheck.length > 0) {
+    // @ts-ignore
+    await table.updateRecordsAsync(uncheck.slice(0, 50))
+    uncheck = uncheck.slice(50)
+}
+
+// Make new records based on those that were checked
+let newRecords = []
+for (let record of checked) {
+    let newRecord = {fields: {}}
+    for (let field of table.fields) {
+        // @ts-ignore
+        if (field.isComputed || field.name === "Copy")
+            continue
+        let value = record.getCellValue(field.name)
+        if (value === record.name)
+            value += " copy"
+        newRecord.fields[field.name] = value
+    }
+    newRecords.push(newRecord)
+}
+
+while (newRecords.length > 0) {
+    await table.createRecordsAsync(newRecords.slice(0, 50))
+    newRecords = newRecords.slice(50)
+}
