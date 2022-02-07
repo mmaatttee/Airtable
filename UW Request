@@ -1,9 +1,12 @@
 /* CONFIG */
-let queryColumn = 'Query'
-let resultColumn = 'Wiki'
-let language = 'en'
-let table = base.getTable('table');
-let view = table.getView('view');
+let aliasColumn = 'Alias'
+let pointerColumn = 'Pointer'
+let resultColumn = 'Description'
+/* Table & View ID */
+let tableID = cursor.activeTableId;
+let table = base.getTable(tableID);
+let viewID = cursor.activeViewId;
+let view = table.getView(viewID);
 
 
 /* SCRIPT */
