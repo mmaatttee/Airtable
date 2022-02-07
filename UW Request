@@ -1,43 +1,36 @@
 /* CONFIG */
-let queryColumn = 'Query'
-let resultColumn = 'Wiki'
-let language = 'en'
-let table = base.getTable('table');
-let view = table.getView('view');
+const aliasColumn = 'Alias'
+const pointerColumn = 'Pointer'
+const resultColumn = 'Description'
+/* Table & View ID */
+let tableId = cursor.activeTableId;
+let table = base.getTable(tableId);
+let viewID = cursor.activeViewId;
+let view = table.getView(viewID);
 
+//console.log(view);
 
-/* SCRIPT */
-
-/* list of all records in view */
 let result = await view.selectRecordsAsync();
-for (let record of result.records) {
-    let query = record.getCellValueAsString(queryColumn)
-    let seachQuery = encodeURIComponent(query)
-    /* skips wiki request if airtable record has no query */
-    if (query == null) {continue}
-    /* skips request if airtable record already has */
-    if (record.getCellValue(resultColumn) == null) {
-        let wikiURL = 
-            'https://' + language +
-            '.wikipedia.org/w/api.php?origin=*' + 
-            /* specify content of wiki request (https://en.wikipedia.org/w/api.php?) */
-            '&action=query&prop=extracts&titles=' + seachQuery + '&exintro' +
-            '&format=json';
-        let wikiResponse = await fetch(wikiURL, {mode:"cors", headers:{origin:"*"}});
-        let wikiJSON = await wikiResponse.json();
-        let wikiIntroHTML = wikiJSON.query.pages[Object.keys(wikiJSON.query.pages)].extract;
-        try {
-            /* removes everything but raw text */
-            var wikiIntroText = wikiIntroHTML.replace(/\n|<.*?>/gm,''); 
+
+//console.log(result);
+
+for (let record of result.records) 
+{
+    let alias = record.getCellValueAsString(aliasColumn)
+    let searchalias = encodeURIComponent(alias)
+    let pointer = record.getCellValueAsString(pointerColumn)
+    let searchpointer = encodeURIComponent(pointer)
+    let uwurl = 'https://digitalcollections.lib.washington.edu/digital/bl/dmwebservices/index.php?q=dmGetItemInfo/' + searchalias + '/' + searchpointer + '/json';
+    let UWResponse = await fetch(uwurl);
+    let UWJSON = await UWResponse.json();
+    let UWDescri = UWJSON["descri"];
+        //console.log(uwurl);
+        //console.log(UWDescri);
+     try {
+           await table.updateRecordAsync(record, {[resultColumn]: UWDescri,});
         }
         catch(e) {
-            console.error(
-            `Wiki search for "${query}" returned an undefined object.
-            This is likely because no such Wikipedia article exists,
-            or because your query is not formatted correctly. (it is case sensitive)`
-            )
+            output.markdown(`UW info for the "${alias}" and "${pointer}" pair returned an undefined object. This is likely because no such UW object exists.`)
         }
-        await table.updateRecordAsync(record, {[resultColumn]: wikiIntroText,});
-    }
+    
 }
-output.markdown('# done')
