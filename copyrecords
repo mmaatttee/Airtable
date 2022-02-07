@@ -2,27 +2,27 @@
 
 let table = base.getTable(cursor.activeTableId)
 let query = await table.selectRecordsAsync()
-let checked = query.records.filter(record => {return record.getCellValue("Copy") === true})
+let template = query.records.filter(record => {return record.getCellValue("Template") === true})
 
 // Uncheck the current records
-let uncheck = checked.map(record => {return {id: record.id, fields: {"Copy": false}}})
+let uncheck = template.map(record => {return {id: record.id, fields: {"Template": false}}})
 while (uncheck.length > 0) {
     // @ts-ignore
     await table.updateRecordsAsync(uncheck.slice(0, 50))
     uncheck = uncheck.slice(50)
 }
 
-// Make new records based on those that were checked
+// Duplicate template records based on those that were marked as 'Template'
 let newRecords = []
-for (let record of checked) {
+for (let record of template) {
     let newRecord = {fields: {}}
     for (let field of table.fields) {
         // @ts-ignore
-        if (field.isComputed || field.name === "Copy")
+        if (field.isComputed || field.name === "Video")
             continue
         let value = record.getCellValue(field.name)
         if (value === record.name)
-            value += " copy"
+            value += " Video"
         newRecord.fields[field.name] = value
     }
     newRecords.push(newRecord)
