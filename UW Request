@@ -28,6 +28,11 @@ for (let record of result.records) {
             'https://digitalcollections.lib.washington.edu/digital/bl/dmwebservices/index.php?q=dmGetItemInfo/' + searchAlias + '/' + searchPointer + '/json';
         let UWResponse = await fetch(UWURL);
         let UWJSON = await UWResponse.json();
+        let UWDescri = UWResponse["descri"];
+
+
+        
+        /* query.pages[Object.keys(wikiJSON.query.pages)].extract;*/
         }
         catch(e) {
             console.error(
