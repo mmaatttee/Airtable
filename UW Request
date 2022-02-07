@@ -1,46 +1,36 @@
 /* CONFIG */
-let aliasColumn = 'Alias'
-let pointerColumn = 'Pointer'
-let resultColumn = 'Description'
+const aliasColumn = 'Alias'
+const pointerColumn = 'Pointer'
+const resultColumn = 'Description'
 /* Table & View ID */
-let tableID = cursor.activeTableId;
-let table = base.getTable(tableID);
+let tableId = cursor.activeTableId;
+let table = base.getTable(tableId);
 let viewID = cursor.activeViewId;
 let view = table.getView(viewID);
 
+//console.log(view);
 
-/* SCRIPT */
-
-/* list of all records in view */
 let result = await view.selectRecordsAsync();
-for (let record of result.records) {
-    /* alias */
+
+//console.log(result);
+
+for (let record of result.records) 
+{
     let alias = record.getCellValueAsString(aliasColumn)
-    let searchAlias = encodeURIComponent(alias)
-    if (alias == null) {continue}
-    /* pointer */
+    let searchalias = encodeURIComponent(alias)
     let pointer = record.getCellValueAsString(pointerColumn)
-    let searchPointer = encodeURIComponent(pointer)
-    if (pointer == null) {continue}
-    /* skips request if airtable record already has a description */
-    if (record.getCellValue(resultColumn) == null) {
-        let UWURL = 
-            'https://digitalcollections.lib.washington.edu/digital/bl/dmwebservices/index.php?q=dmGetItemInfo/' + searchAlias + '/' + searchPointer + '/json';
-        let UWResponse = await fetch(UWURL);
-        let UWJSON = await UWResponse.json();
-        let UWDescri = UWResponse["descri"];
-
-
-        
-        /* query.pages[Object.keys(wikiJSON.query.pages)].extract;*/
+    let searchpointer = encodeURIComponent(pointer)
+    let uwurl = 'https://digitalcollections.lib.washington.edu/digital/bl/dmwebservices/index.php?q=dmGetItemInfo/' + searchalias + '/' + searchpointer + '/json';
+    let UWResponse = await fetch(uwurl);
+    let UWJSON = await UWResponse.json();
+    let UWDescri = UWJSON["descri"];
+        //console.log(uwurl);
+        //console.log(UWDescri);
+     try {
+           await table.updateRecordAsync(record, {[resultColumn]: UWDescri,});
         }
         catch(e) {
-            console.error(
-            `UW search for "${alias}" and "${pointer} returned an undefined object.
-            This is likely because no such UW object exists`
-            )
+            output.markdown(`UW info for the "${alias}" and "${pointer}" pair returned an undefined object. This is likely because no such UW object exists.`)
         }
-        await table.updateRecordAsync(record, {[resultColumn]: wikiIntroText,});
-    }
+    
 }
-output.markdown('# done')
