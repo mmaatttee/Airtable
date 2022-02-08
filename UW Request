@@ -20,6 +20,7 @@ for (let record of result.records)
     let searchalias = encodeURIComponent(alias)
     let pointer = record.getCellValueAsString(pointerColumn)
     let searchpointer = encodeURIComponent(pointer)
+    let recordName = record.name;
     let uwurl = 'https://digitalcollections.lib.washington.edu/digital/bl/dmwebservices/index.php?q=dmGetItemInfo/' + searchalias + '/' + searchpointer + '/json';
     let UWResponse = await fetch(uwurl);
     let UWJSON = await UWResponse.json();
@@ -30,7 +31,7 @@ for (let record of result.records)
            await table.updateRecordAsync(record, {[resultColumn]: UWDescri,});
         }
         catch(e) {
-            output.markdown(`UW info for the "${alias}" and "${pointer}" pair returned an undefined object. This is likely because no such UW object exists.`)
+            output.markdown(`UW info for ${recordName}, i.e. the "${alias}" and "${pointer}" pair, returned null. This is likely because the 'descri' value in the original JSON string is empty.`)
         }
     
 }
