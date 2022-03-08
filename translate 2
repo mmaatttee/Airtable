@@ -1,0 +1,123 @@
+//select source langauge using ISO 2 letter code
+let source = "ru";
+
+// Translate API key
+let key="AIzaSyDDTHS1mwtnAZyUnZhFarNtvFrQSKzLJ-E";  // <= change your API here
+
+// Select table
+//let table = await input.tableAsync('Select table');
+let table = base.getTable('Original');
+
+// Get language list from columns
+let fields = [];
+for (let field of table.fields) {
+    if (field.name !== "plugin_name" && field.name !== "text_name" && field.name !== "text_code"  ){
+      fields.push(field.name);
+    }
+    
+}
+//console.log(fields);
+
+//set counter for total
+let counter = 0;
+
+//iterate over all columns/fields with all languages
+for (let field of fields){
+
+  //get records data for Name and selected Language only
+  let records = await table.selectRecordsAsync({fields:["text_code", field]});
+  //output.inspect(records);
+
+  //select records for selected language where language field is empty and 
+  //text _code(translation text) exists
+  let nonEmptyRecords = records.records.filter(record => {
+      let target = record.getCellValue(field);
+      let source = record.getCellValue('text_code');
+      return !target && source;
+  });
+  //console.log(nonEmptyRecords.length);
+
+  //convert to simple array with records to translate
+  let reccsnK8tgeDeFPKoe =  [];
+
+  for (let record of nonEmptyRecords)
+  {
+      reccsnK8tgeDeFPKoe.push({
+        "id" : record.id,
+        "name" : record.getCellValue("text_code")
+      });
+  }
+  let totalNumberToTranslate = reccsnK8tgeDeFPKoe.length;
+  if (totalNumberToTranslate === 0) {
+    output.markdown(`Skipping ${field} no missing translations.`);
+    continue;
+  }
+  output.markdown(`Translating ${totalNumberToTranslate} records to ${field}`);
+  //output.inspect(reccsnK8tgeDeFPKoe)
+
+  //prepare variables for http fetch request to API
+  let q = [];
+  let target = field.split("_")[0];  // changing locale ( BCP 47 ) to  ISO 639-1
+  let url=`https://translation.googleapis.com/language/translate/v2?format=text&${source}=en&key=${key}&target=${target}`;
+
+
+  // batch translate and update records in increments of 50
+  while (reccsnK8tgeDeFPKoe.length > 0) {
+
+    //prepare batch of 50
+    let batch = reccsnK8tgeDeFPKoe.slice(0, 50);
+    q = batch.map(reccsnK8tgeDeFPKoe => reccsnK8tgeDeFPKoe.name);
+    //output.inspect(batch);
+
+    // json for fetch request
+    let data = {
+        "q": q
+    };
+
+    //fetch POST request with all params
+    let apiResponse = await fetch(url,{
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        //cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        //credentials: 'same-origin', // include, *same-origin, omit
+        //headers: {
+        //  'Content-Type': 'application/json'
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        //},
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data) // body data type must match "Content-Type" header
+      });
+
+
+    //extract translation array from the response
+    let response = await apiResponse.json();
+    response = response.data.translations ;
+    //output.inspect(response);
+
+    //create batch of records to update
+    let updateRecords =[];
+    for (let i = 0; i < batch.length; i++) {
+      
+      updateRecords.push({
+        id: batch[i].id,
+        fields: { 
+              [field]: response[i].translatedText
+        }
+      });
+      
+
+    }
+
+    //update airtable for empty records
+    await table.updateRecordsAsync(updateRecords);
+    
+    reccsnK8tgeDeFPKoe = reccsnK8tgeDeFPKoe.slice(50);
+    output.text(`Updated ${totalNumberToTranslate-reccsnK8tgeDeFPKoe.length}/${totalNumberToTranslate} records`);
+
+  }
+
+ counter++; 
+}
+
+output.markdown(`**Updated total ${counter} languages.**`);
