@@ -1,23 +1,21 @@
 //select source langauge using ISO 2 letter code
-let source = "ru";
+let source = "en";
 
 // Translate API key
-let key="XXXXXX";  // <= change your API here
+let key="YourAPIcodeHere";  // <= change your API here
 
 // Select table
-//let table = await input.tableAsync('Select table');
 let table = base.getTable('Stuff');
 
-/* Get language list from columns
+// Get language list from columns
 let fields = [];
 for (let field of table.fields) {
-    if (field.name !== "plugin_name" && field.name !== "text_name" && field.name !== "text_code"  ){
+    if (field.name == "en"){
       fields.push(field.name);
     }
     
 }
-//console.log(fields);
-*/
+console.log(fields);
 
 //set counter for total
 let counter = 0;
@@ -26,53 +24,35 @@ let counter = 0;
 for (let field of fields){
 
   //get records data for Name and selected Language only
-  let records = await table.selectRecordsAsync({fields:["text_code", field]});
+  let records = await table.selectRecordsAsync({fields:["Original", field]});
   //output.inspect(records);
 
   //select records for selected language where language field is empty and 
   //text _code(translation text) exists
   let nonEmptyRecords = records.records.filter(record => {
       let target = record.getCellValue(field);
-      let source = record.getCellValue('text_code');
+      let source = record.getCellValue('Original');
       return !target && source;
   });
   //console.log(nonEmptyRecords.length);
 
-  //select source langauge using ISO 2 letter code
-let source = "en";
-
-// Translate API key
-let key="YourAPIcodeHere";  // <= change your API here
-
-// Select table
-let table = await input.tableAsync('Select table');
-
-// Get language list from columns
-let fields = [];
-for (let field of table.fields) {
-    if (field.name == "Original"){
-      fields.push(field.name);
-    }
-    
-}
-console.log(fields);
-//convert to simple array with records to translate
-  let translateArray =  [];
+  //convert to simple array with records to translate
+  let recordsToTranslate =  [];
 
   for (let record of nonEmptyRecords)
   {
-      translateArray.push({
+      recordsToTranslate.push({
         "id" : record.id,
-        "name" : record.getCellValue("text_code")
+        "name" : record.getCellValue("Original")
       });
   }
-  let totalNumberToTranslate = translateArray.length;
+  let totalNumberToTranslate = recordsToTranslate.length;
   if (totalNumberToTranslate === 0) {
     output.markdown(`Skipping ${field} no missing translations.`);
     continue;
   }
   output.markdown(`Translating ${totalNumberToTranslate} records to ${field}`);
-  //output.inspect(reccsnK8tgeDeFPKoe)
+  //output.inspect(recordsToTranslate)
 
   //prepare variables for http fetch request to API
   let q = [];
@@ -81,11 +61,11 @@ console.log(fields);
 
 
   // batch translate and update records in increments of 50
-  while (translateArray.length > 0) {
+  while (recordsToTranslate.length > 0) {
 
     //prepare batch of 50
-    let batch = translateArray.slice(0, 50);
-    q = batch.map(translateArray => translateArray.name);
+    let batch = recordsToTranslate.slice(0, 50);
+    q = batch.map(recordsToTranslate => recordsToTranslate.name);
     //output.inspect(batch);
 
     // json for fetch request
@@ -117,22 +97,22 @@ console.log(fields);
     //create batch of records to update
     let updateRecords =[];
     for (let i = 0; i < batch.length; i++) {
-      
+
       updateRecords.push({
         id: batch[i].id,
         fields: { 
               [field]: response[i].translatedText
         }
       });
-      
+
 
     }
 
     //update airtable for empty records
     await table.updateRecordsAsync(updateRecords);
-    
-    translateArray = translateArray.slice(50);
-    output.text(`Updated ${totalNumberToTranslate-translateArray.length}/${totalNumberToTranslate} records`);
+
+    recordsToTranslate = recordsToTranslate.slice(50);
+    output.text(`Updated ${totalNumberToTranslate-recordsToTranslate.length}/${totalNumberToTranslate} records`);
 
   }
 
