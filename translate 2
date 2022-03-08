@@ -64,11 +64,11 @@ console.log(nonEmptyRecords.length);
   let url=`https://translation.googleapis.com/language/translate/v2?format=text&${source}=en&key=${key}&target=${target}`;
 
 
-  // batch translate and update records in increments of 50
+  // batch translate and update records in increments of 10
   while (recordsToTranslate.length > 0) {
 
-    //prepare batch of 50
-    let batch = recordsToTranslate.slice(0, 50);
+    //prepare batch of 10
+    let batch = recordsToTranslate.slice(0, 10);
     q = batch.map(recordsToTranslate => recordsToTranslate.name);
     //output.inspect(batch);
 
@@ -115,7 +115,7 @@ console.log(nonEmptyRecords.length);
     //update airtable for empty records
     await table.updateRecordsAsync(updateRecords);
 
-    recordsToTranslate = recordsToTranslate.slice(50);
+    recordsToTranslate = recordsToTranslate.slice(10);
     output.text(`Updated ${totalNumberToTranslate-recordsToTranslate.length}/${totalNumberToTranslate} records`);
 
   }
