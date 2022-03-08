@@ -1,8 +1,11 @@
-//select source langauge using ISO 2 letter code
+// This script translates in batches of 10 everything in the fields Use of Funds to Use of Funds Translated in the Need Translation view
+
+
+select source langauge using ISO 2 letter code
 let source = "en";
 
 // Translate API key
-let key="YourAPIcodeHere";  // <= change your API here
+let key="OurAPIcodeHere";  // <= change your API here
 
 // Select table
 let table = base.getTable('Stuff');
