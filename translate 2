@@ -2,7 +2,7 @@
 let source = "ru";
 
 // Translate API key
-let key="AIzaSyDDTHS1mwtnAZyUnZhFarNtvFrQSKzLJ-E";  // <= change your API here
+let key="XXXXXX";  // <= change your API here
 
 // Select table
 //let table = await input.tableAsync('Select table');
