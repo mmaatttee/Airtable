@@ -6,9 +6,9 @@ let key="XXXXXX";  // <= change your API here
 
 // Select table
 //let table = await input.tableAsync('Select table');
-let table = base.getTable('Original');
+let table = base.getTable('Stuff');
 
-// Get language list from columns
+/* Get language list from columns
 let fields = [];
 for (let field of table.fields) {
     if (field.name !== "plugin_name" && field.name !== "text_name" && field.name !== "text_code"  ){
@@ -17,6 +17,7 @@ for (let field of table.fields) {
     
 }
 //console.log(fields);
+*/
 
 //set counter for total
 let counter = 0;
@@ -37,17 +38,35 @@ for (let field of fields){
   });
   //console.log(nonEmptyRecords.length);
 
-  //convert to simple array with records to translate
-  let reccsnK8tgeDeFPKoe =  [];
+  //select source langauge using ISO 2 letter code
+let source = "en";
+
+// Translate API key
+let key="YourAPIcodeHere";  // <= change your API here
+
+// Select table
+let table = await input.tableAsync('Select table');
+
+// Get language list from columns
+let fields = [];
+for (let field of table.fields) {
+    if (field.name == "Original"){
+      fields.push(field.name);
+    }
+    
+}
+console.log(fields);
+//convert to simple array with records to translate
+  let translateArray =  [];
 
   for (let record of nonEmptyRecords)
   {
-      reccsnK8tgeDeFPKoe.push({
+      translateArray.push({
         "id" : record.id,
         "name" : record.getCellValue("text_code")
       });
   }
-  let totalNumberToTranslate = reccsnK8tgeDeFPKoe.length;
+  let totalNumberToTranslate = translateArray.length;
   if (totalNumberToTranslate === 0) {
     output.markdown(`Skipping ${field} no missing translations.`);
     continue;
@@ -62,11 +81,11 @@ for (let field of fields){
 
 
   // batch translate and update records in increments of 50
-  while (reccsnK8tgeDeFPKoe.length > 0) {
+  while (translateArray.length > 0) {
 
     //prepare batch of 50
-    let batch = reccsnK8tgeDeFPKoe.slice(0, 50);
-    q = batch.map(reccsnK8tgeDeFPKoe => reccsnK8tgeDeFPKoe.name);
+    let batch = translateArray.slice(0, 50);
+    q = batch.map(translateArray => translateArray.name);
     //output.inspect(batch);
 
     // json for fetch request
@@ -112,8 +131,8 @@ for (let field of fields){
     //update airtable for empty records
     await table.updateRecordsAsync(updateRecords);
     
-    reccsnK8tgeDeFPKoe = reccsnK8tgeDeFPKoe.slice(50);
-    output.text(`Updated ${totalNumberToTranslate-reccsnK8tgeDeFPKoe.length}/${totalNumberToTranslate} records`);
+    translateArray = translateArray.slice(50);
+    output.text(`Updated ${totalNumberToTranslate-translateArray.length}/${totalNumberToTranslate} records`);
 
   }
 
