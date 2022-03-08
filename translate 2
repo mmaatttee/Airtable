@@ -7,6 +7,9 @@ let key="YourAPIcodeHere";  // <= change your API here
 // Select table
 let table = base.getTable('Stuff');
 
+// Select view
+let currentView = table.getView('Created by Airtable');
+
 // Get language list from columns
 let fields = [];
 for (let field of table.fields) {
@@ -24,7 +27,8 @@ let counter = 0;
 for (let field of fields){
 
   //get records data for Name and selected Language only
-  let records = await table.selectRecordsAsync({fields:["Original", field]});
+  //let records = await table.selectRecordsAsync({fields:["Original", field]});
+  let records = await currentView.selectRecordsAsync({fields:["Original", "en"]});
   //output.inspect(records);
 
   //select records for selected language where language field is empty and 
@@ -34,7 +38,7 @@ for (let field of fields){
       let source = record.getCellValue('Original');
       return !target && source;
   });
-  //console.log(nonEmptyRecords.length);
+console.log(nonEmptyRecords.length);
 
   //convert to simple array with records to translate
   let recordsToTranslate =  [];
