@@ -1,5 +1,5 @@
 //prepare variables for http fetch request to API
-let url=`https://www.googleapis.com/drive/v3/files/1mEi9OswuTwoRHb1jfTeJAE6mgQhZQUBz?fields=name%2C%20hasThumbnail%2C%20thumbnailLink&key=AIzaSyDDTHS1mwtnAZyUnZhFarNtvFrQSKzLJ-E`;
+let url=`https://www.googleapis.com/drive/v3/files/1mEi9OswuTwoRHb1jfTeJAE6mgQhZQUBz?fields=name%2C%20hasThumbnail%2C%20thumbnailLink&key=YOUR API KEY`;
 
 let apiResponse = await fetch(url,{
     method: "get",
