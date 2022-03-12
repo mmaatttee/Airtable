@@ -1,0 +1,18 @@
+/* get the target table
+let targetTable = base.getTable("Sandbox");
+
+// set the csv url (in dropbox)
+let csvFileName = "myCSVFile.csv";
+let csvURL = "https://lh3.googleusercontent.com/oVNOf3sqzE-XFZy-snmvxCVVpbe9QM1sz1jIabM5vtiS6v0KDPl1BhBEzHXpSxcVS_3MT9dvJcDFrzM=s220";
+// update the csv file record
+await targetTable.updateRecordAsync("recrzuP3Jyo6hd9vj", {
+    //"Name" : "My CSV File",
+    //"Rows" : csvItemCount,
+    "Thumbnail": [
+        {
+        "id"       : "attiRJr8Ih9v3etWi",
+        "filename" : csvFileName,
+        "url"      : csvURL
+        }
+    ]
+}) */
