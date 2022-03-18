@@ -1,22 +1,19 @@
-// This script translates in batches of 10 everything in the fields Use of Funds to Use of Funds Translated in the Need Translation view
-
-
-select source langauge using ISO 2 letter code
+//select source langauge using ISO 2 letter code
 let source = "en";
 
 // Translate API key
-let key="OurAPIcodeHere";  // <= change your API here
+let key="OURAPIKEY";  // <= change your API here
 
 // Select table
-let table = base.getTable('Stuff');
+let table = base.getTable('Family');
 
 // Select view
-let currentView = table.getView('Created by Airtable');
+let currentView = table.getView('Need Translation');
 
 // Get language list from columns
 let fields = [];
 for (let field of table.fields) {
-    if (field.name == "en"){
+    if (field.name == "Use of Funds Translated"){
       fields.push(field.name);
     }
     
@@ -30,15 +27,17 @@ let counter = 0;
 for (let field of fields){
 
   //get records data for Name and selected Language only
-  //let records = await table.selectRecordsAsync({fields:["Original", field]});
-  let records = await currentView.selectRecordsAsync({fields:["Original", "en"]});
-  //output.inspect(records);
+  //let records = await table.selectRecordsAsync({fields:["Use of Funds", field]});
+  //get records from Need Translation view only
+  let records = await currentView.selectRecordsAsync({fields:["Use of Funds", "Use of Funds Translated"]});
 
   //select records for selected language where language field is empty and 
   //text _code(translation text) exists
   let nonEmptyRecords = records.records.filter(record => {
+      // this below is if we want to translate from different languages
       let target = record.getCellValue(field);
-      let source = record.getCellValue('Original');
+      // this below is if we want to translate to different languages
+      let source = record.getCellValue('Use of Funds');
       return !target && source;
   });
 console.log(nonEmptyRecords.length);
@@ -50,22 +49,19 @@ console.log(nonEmptyRecords.length);
   {
       recordsToTranslate.push({
         "id" : record.id,
-        "name" : record.getCellValue("Original")
+        "name" : record.getCellValue("Use of Funds")
       });
   }
   let totalNumberToTranslate = recordsToTranslate.length;
   if (totalNumberToTranslate === 0) {
-    output.markdown(`Skipping ${field} no missing translations.`);
-    continue;
+  continue;
   }
-  output.markdown(`Translating ${totalNumberToTranslate} records to ${field}`);
-  //output.inspect(recordsToTranslate)
+ 
 
   //prepare variables for http fetch request to API
   let q = [];
-  let target = field.split("_")[0];  // changing locale ( BCP 47 ) to  ISO 639-1
+  let target = "en";
   let url=`https://translation.googleapis.com/language/translate/v2?format=text&${source}=en&key=${key}&target=${target}`;
-
 
   // batch translate and update records in increments of 10
   while (recordsToTranslate.length > 0) {
@@ -73,7 +69,6 @@ console.log(nonEmptyRecords.length);
     //prepare batch of 10
     let batch = recordsToTranslate.slice(0, 10);
     q = batch.map(recordsToTranslate => recordsToTranslate.name);
-    //output.inspect(batch);
 
     // json for fetch request
     let data = {
@@ -90,7 +85,7 @@ console.log(nonEmptyRecords.length);
         //  'Content-Type': 'application/json'
           // 'Content-Type': 'application/x-www-form-urlencoded',
         //},
-        redirect: 'follow', // manual, *follow, error
+        // redirect: 'follow', // no redirects in Airtable automation scripts
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: JSON.stringify(data) // body data type must match "Content-Type" header
       });
@@ -98,8 +93,7 @@ console.log(nonEmptyRecords.length);
 
     //extract translation array from the response
     let response = await apiResponse.json();
-    response = response.data.translations ;
-    //output.inspect(response);
+    response = response.data.translations;
 
     //create batch of records to update
     let updateRecords =[];
@@ -117,13 +111,8 @@ console.log(nonEmptyRecords.length);
 
     //update airtable for empty records
     await table.updateRecordsAsync(updateRecords);
-
     recordsToTranslate = recordsToTranslate.slice(10);
-    output.text(`Updated ${totalNumberToTranslate-recordsToTranslate.length}/${totalNumberToTranslate} records`);
-
   }
 
  counter++; 
 }
-
-output.markdown(`**Updated total ${counter} languages.**`);
