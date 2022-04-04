@@ -49,8 +49,8 @@ output.inspect(recordsNeedThumbNail);
 
  //prepare variables for http fetch request to API
       let url=`https://www.googleapis.com/drive/v3/files/${gDriveID[it]}?fields=name%2C%20hasThumbnail%2C%20thumbnailLink`;
-
-
+ 
+ //Google bearer token to be refreshed often
       let apiResponse = await fetch(url,{
       method: "get",
       headers: {
