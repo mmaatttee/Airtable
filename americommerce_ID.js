@@ -46,11 +46,11 @@ console.log("numbers of records to process =", nonEmptyRecords.length);
     for (let it = 0; it < batch.length; it++) {
 
     //prepare variables for http fetch request to API
-        let url=`https://www.[AMERICOMMERCE STORE]/api/v1/products?item_number=${arrayIN[it]}`;
+        let url=`https://www.mindkits.co.nz/api/v1/products?item_number=${arrayIN[it]}`;
         let apiResponse = await fetch(url,{
                                             method: "get",
                                             headers: {
-                                                      'X-AC-Auth-Token': 'XXXXX',
+                                                      'X-AC-Auth-Token': '262557690032eacfad64023e3494dafb',
                                                       'Accept'         : 'application/json'
                                                      }
                                           }
@@ -65,14 +65,14 @@ console.log("numbers of records to process =", nonEmptyRecords.length);
       if (humanResponse.total_count !== 0) 
       { 
        // console.log('this is the human response ', it, humanResponse.products[0].id);
-       // responseArray.push({atID : batch[it].airtableID, acID : humanResponse.products[0].id});
-      //  console.log("this is the API response array", responseArray);
         //console.log(batch[it].airtableID, responseArray[0].acID);
         //await selectTable.updateRecordAsync(responseArray[it].atID, {'Americommerce ID': responseArray[it].acID});
         await selectTable.updateRecordsAsync([{id : batch[it].airtableID, fields:{'Americommerce ID' : humanResponse.products[0].id}
                                            }]);
         }
       else { 
+              await selectTable.updateRecordsAsync([{id : batch[it].airtableID, fields:{'Americommerce ID' : 9999999999}
+                                           }]);
               errCounter++; 
               console.log('Not Found in Americommerce', errCounter);
          };
