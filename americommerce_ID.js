@@ -46,11 +46,11 @@ console.log("numbers of records to process =", nonEmptyRecords.length);
     for (let it = 0; it < batch.length; it++) {
 
     //prepare variables for http fetch request to API
-        let url=`https://www.mindkits.co.nz/api/v1/products?item_number=${arrayIN[it]}`;
+        let url=`https://[YOUR AMERICOMMERCE SHOP DOMAIN]/api/v1/products?item_number=${arrayIN[it]}`;
         let apiResponse = await fetch(url,{
                                             method: "get",
                                             headers: {
-                                                      'X-AC-Auth-Token': '262557690032eacfad64023e3494dafb',
+                                                      'X-AC-Auth-Token': 'XXXXXXX',
                                                       'Accept'         : 'application/json'
                                                      }
                                           }
