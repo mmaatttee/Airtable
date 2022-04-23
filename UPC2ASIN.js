@@ -22,8 +22,8 @@ This script requires no changes to the structure of the database.
 ********************************************************************************/
 
 // edit these values to match current base
-let selectTable = base.getTable("Variants");
-let currentView = selectTable.getView('NO ASIN');
+let selectTable = base.getTable("ASIN");
+let currentView = selectTable.getView('TEMP');
 
 //set counter for total
 let errCounter = 0;
@@ -66,11 +66,17 @@ console.log("numbers of records to process =", nonEmptyRecords.length);
    // console.log('this is the batch array ', batch);
    // console.log('this is the arrayBC array ', arrayBC);
 
-    for (let it = 0; it < batch.length; it++) {
-
-    //prepare variables for http fetch request to API
-        let url=`https://api.barcodespider.com/v1/lookup?upc=${arrayBC[it]}`;
-        let apiResponse = await remoteFetchAsync(url,{
+      
+        for (let it = 0; it < batch.length; it++) {
+          function delay(seconds) {
+          const startTime = Date.now()
+          while (Date.now() - startTime < seconds * 1000)
+          continue
+                                  }
+          delay(10)
+        //prepare variables for http fetch request to API
+            let url=`https://api.barcodespider.com/v1/lookup?upc=${arrayBC[it]}`;
+            let apiResponse = await remoteFetchAsync(url,{
                                             method: "get",
                                             headers: {
                                                       'token'  : 'XXX',
@@ -79,24 +85,24 @@ console.log("numbers of records to process =", nonEmptyRecords.length);
                                           }
                                       );
 
-      console.log('this is the url generated, ', url);
-      console.log('this is the api response ', apiResponse); 
+            console.log('this is the url generated, ', url);
+            console.log('this is the api response ', apiResponse); 
       
-      let humanResponse = await apiResponse.json();
-      console.log('this is the human response ', it, humanResponse);
-      if (apiResponse.status === 200) {
-      await selectTable.updateRecordsAsync([{id : batch[it].airtableID, fields:{'ASIN' : humanResponse.item_attributes.asin}
+            let humanResponse = await apiResponse.json();
+            console.log('this is the human response ', it, humanResponse);
+            if (apiResponse.status === 200) {
+            await selectTable.updateRecordsAsync([{id : batch[it].airtableID, fields:{'ASIN' : humanResponse.item_attributes.asin}
                                            }]);
-      }
-      else { 
+                                           }
+            else { 
               errCounter++; 
               console.log('API returned Error!',  'UPC =', arrayBC[it],  'due to', humanResponse.item_response.status, humanResponse.item_response.message);
-         };
-         recordsNeedAS = recordsNeedAS.slice(50);
-  }
+                 };
+            recordsNeedAS = recordsNeedAS.slice(50);
+                                                  }
  output.text(`Processed ${totalNumberNeedID-recordsNeedAS.length}/${totalNumberNeedID} records`);
 
-    }
+    } 
 
   
     
