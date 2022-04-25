@@ -22,8 +22,8 @@ This script requires no changes to the structure of the database.
 ********************************************************************************/
 
 // edit these values to match current base
-let selectTable = base.getTable("ASIN");
-let currentView = selectTable.getView('TEMP');
+let selectTable = base.getTable("Variants");
+let currentView = selectTable.getView('NO ASIN');
 
 //set counter for total
 let errCounter = 0;
@@ -33,11 +33,11 @@ let recordsAll = await currentView.selectRecordsAsync();
 
 //select non-empty records
 let nonEmptyRecords = recordsAll.records.filter(record => {
-      // this below picks records which have values in the field ("Barcode")
-      let nonEmptyBC = record.getCellValue("Barcode");
+      // this below picks records which have values in the field ("Barcode2")
+      let nonEmptyBC = record.getCellValue("Barcode2");
       // this below picks records which have values in the field ("ASIN")
       let nonEmptyAS = record.getCellValue("ASIN");
-      // this below creates a subarray of records which have values in the field ("Barcode"), and excludes the records which have values in the field ("ASIN")
+      // this below creates a subarray of records which have values in the field ("Barcode2"), and excludes the records which have values in the field ("ASIN")
       return nonEmptyBC && !nonEmptyAS;
   });
 console.log("numbers of records to process =", nonEmptyRecords.length);
@@ -48,7 +48,7 @@ console.log("numbers of records to process =", nonEmptyRecords.length);
   for (let record of nonEmptyRecords) {
       recordsNeedAS.push({
         "airtableID" : record.id,
-        "barcode" : record.getCellValue("Barcode")
+        "barcode" : record.getCellValue("Barcode2")
       });
   }
   let totalNumberNeedID = recordsNeedAS.length;
