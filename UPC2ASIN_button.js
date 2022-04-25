@@ -16,7 +16,7 @@ let url=`https://api.barcodespider.com/v1/lookup?upc=${cellBarcode}`;
 let apiResponse = await remoteFetchAsync(url,{
                                             method: "get",
                                             headers: {
-                                                      'token'  : 'ff902d4a60a0f9b8d189',
+                                                      'token'  : 'XXXX',
                                                       'Accept' : 'application/json'
                                                      }
                                           }
