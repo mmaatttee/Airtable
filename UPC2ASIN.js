@@ -66,7 +66,7 @@ console.log("numbers of records to process =", nonEmptyRecords.length);
    // console.log('this is the batch array ', batch);
    // console.log('this is the arrayBC array ', arrayBC);
 
-      
+      //Pause function
         for (let it = 0; it < batch.length; it++) {
           function delay(seconds) {
           const startTime = Date.now()
