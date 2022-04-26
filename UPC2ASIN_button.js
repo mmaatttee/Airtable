@@ -1,6 +1,5 @@
 // edit these values to match current base
 let selectTable = base.getTable("ASIN");
-let currentView = selectTable.getView('TEMP');
 
 //set counter for total
 let errCounter = 0;
