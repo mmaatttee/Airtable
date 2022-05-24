@@ -1,3 +1,5 @@
+// This script is a templatizing script, creates new records based on a template
+
 output.markdown('# Creating order items based on packages');
 
 // create our table objects
