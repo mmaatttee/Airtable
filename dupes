@@ -1,0 +1,27 @@
+const table_name = 'TITLES 2.0';
+const dupe_field = 'dupe';
+
+const table = base.getTable(table_name);
+
+const results = await table.selectRecordsAsync({fields:['Show x Season']});
+
+var dupes = new Set();
+for(let r of results.records) {
+    for(let r2 of results.records) {
+        if (r.name.toLowerCase() === r2.name.toLowerCase() && r.id !== r2.id) {
+            dupes.add(r.id);
+            dupes.add(r2.id);
+        }
+    }
+}
+
+let payloads = [...dupes].map((r)=>{
+    return {id: r, fields: {[dupe_field]: true}}
+});
+
+console.log("DUPES: ", payloads.length);
+console.log(payloads.slice(0,50));
+while(payloads.length > 0) {
+    await table.updateRecordsAsync(payloads.slice(0,50));
+    payloads = payloads.slice(50);
+}
